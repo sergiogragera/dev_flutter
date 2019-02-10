@@ -8,7 +8,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      routes: {"/": (_) => new WebviewScaffold(url: "https://dev.to")},
+      routes: {
+        "/": (_) => new SafeArea(
+              bottom: false,
+              child: new WebviewScaffold(url: "https://dev.to"),
+            )
+      },
     );
   }
 }
