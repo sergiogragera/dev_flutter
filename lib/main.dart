@@ -15,7 +15,8 @@ class MyApp extends StatelessWidget {
               color: Color(WEB_NAVIGATIONBAR_COLOR),
               child: new SafeArea(
                 bottom: false,
-                child: new WebviewScaffold(url: "https://dev.to"),
+                child: new WebviewScaffold(
+                    url: "https://dev.to", userAgent: "DEV-Native-ios"),
               ),
             ),
       },
