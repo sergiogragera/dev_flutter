@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,18 +26,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final flutterWebViewPlugin = FlutterWebviewPlugin();
-  final int WEB_NAVIGATION_BAR_COLOR = 0xFFfdf9f3;
-  ConnectivityResult _connectivityResult;
-
-  _launchURL() async {
-    var url = await flutterWebViewPlugin.evalJavascript("window.location.href");
-    if (await canLaunch(url)) {
-      await launch(url);
-    }
-  }
-
+  final int _webNavigationBarColor = 0xFFfdf9f3;
   final Connectivity _connectivity = Connectivity();
+
+  WebViewController _webViewController;
+  ConnectivityResult _connectivityResult;
   StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   @override
@@ -67,37 +60,45 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return new Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Color(WEB_NAVIGATION_BAR_COLOR),
+      backgroundColor: Color(_webNavigationBarColor),
       body: new SafeArea(
-        bottom: false,
-        child: new WebviewScaffold(
-          url: "https://dev.to",
-          userAgent: "DEV-Native-ios"
-        ),
-      ),
+          bottom: false,
+          child: new WebView(
+              initialUrl: 'https://dev.to',
+              javascriptMode: JavascriptMode.unrestricted,
+              onWebViewCreated: (WebViewController webViewController) {
+                _webViewController = webViewController;
+              })),
       bottomNavigationBar: new BottomAppBar(
-        color: Color(WEB_NAVIGATION_BAR_COLOR),
+        color: Color(_webNavigationBarColor),
         child: new Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             IconButton(
               icon: const Icon(Icons.arrow_back_ios),
-              onPressed: () {
-                flutterWebViewPlugin.goBack();
+              onPressed: () async {
+                if (await _webViewController.canGoBack()) {
+                  _webViewController.goBack();
+                }
               },
             ),
             IconButton(
               icon: const Icon(Icons.arrow_forward_ios),
-              onPressed: () {
-                flutterWebViewPlugin.goForward();
+              onPressed: () async {
+                if (await _webViewController.canGoForward()) {
+                  _webViewController.goForward();
+                }
               },
             ),
             new Spacer(),
             IconButton(
               icon: const Icon(Icons.open_in_browser),
-              onPressed: () {
-                _launchURL();
+              onPressed: () async {
+                var url = await _webViewController.currentUrl();
+                if (await canLaunch(url)) {
+                  await launch(url);
+                }
               },
             ),
           ],
