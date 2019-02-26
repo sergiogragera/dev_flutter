@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flushbar/flushbar.dart';
 
 void main() => runApp(MyApp());
 
@@ -54,12 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      key: _scaffoldKey,
       backgroundColor: Color(_webNavigationBarColor),
       body: new SafeArea(
           bottom: false,
@@ -128,7 +127,11 @@ class _MyHomePageState extends State<MyHomePage> {
         default:
           break;
       }
-      _scaffoldKey.currentState.showSnackBar(new SnackBar(content: new Text(text), backgroundColor: backgroundColor));
+      Flushbar(flushbarPosition: FlushbarPosition.TOP)
+        ..message = text
+        ..backgroundColor = backgroundColor
+        ..duration = Duration(seconds: 3)
+        ..show(context);
     }
     _connectivityResult = result;
   }
