@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:connectivity/connectivity.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:flushbar/flushbar.dart';
 
 void main() => runApp(MyApp());
 
@@ -63,7 +63,15 @@ class _MyHomePageState extends State<MyHomePage> {
           bottom: false,
           child: new WebView(
               initialUrl: 'https://dev.to',
+              userAgent: 'DEV-Native-ios',
               javascriptMode: JavascriptMode.unrestricted,
+              navigationDelegate: (NavigationRequest request) {
+                if (request.url.startsWith('https://dev.to')) {
+                  return NavigationDecision.navigate;
+                }
+                print('allowing navigation to $request');
+                return NavigationDecision.prevent;
+              },
               onWebViewCreated: (WebViewController webViewController) {
                 _webViewController = webViewController;
               })),
@@ -126,11 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
         default:
           break;
       }
-      Flushbar(flushbarPosition: FlushbarPosition.TOP)
-        ..message = text
-        ..backgroundColor = backgroundColor
-        ..duration = Duration(seconds: 3)
-        ..show(context);
+      Flushbar(flushbarPosition: FlushbarPosition.TOP, message: text, backgroundColor: backgroundColor, duration: Duration(seconds: 3))..show(context);
     }
     _connectivityResult = result;
   }
